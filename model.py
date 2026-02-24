@@ -4,7 +4,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import os
 
-class DQN(nn.model):
+class DQN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super(DQN, self).__init__()
         self.lin1 = nn.Linear(input_size, hidden_size)
@@ -13,15 +13,20 @@ class DQN(nn.model):
 
     def forward(self, x):
         x = F.relu(self.lin1(x))
-        x = self.lin2(2)
+        x = self.lin2(x)
         return x
 
 
-    def save():
-        pass
+    def save(self, file_name='model.pth'):
+        model_path = './model'
+        if not os.path.exists(model_path):
+            os.makedirs(model_path)
+
+        file_name = os.path.join(model_path, file_name)
+        torch.save(self.state_dict(), file_name)
 
 
-class DQN_trainer():
+class DQN_trainer:
     def __init__(self, model, lr, gamma):
         self.lr = lr
         self.gamma = gamma
@@ -45,19 +50,20 @@ class DQN_trainer():
 
 
         pred = self.model(state)
+        next_pred = self.model(next_state)
 
         target = pred.clone()
         for idx in range(len(done)):
             q_new = reward[idx]
             if not done[idx]:
-                q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx]))
+                q_new = reward[idx] + self.gamma * torch.max(next_pred[idx])
 
             target[idx][torch.argmax(action[idx]).item()] = q_new 
 
         
         # loss and backpropagation
         self.optimizer.zero_grad()
-        loss = self.criterion(target. pred)
+        loss = self.criterion(target, pred)
         loss.backward()
         self.optimizer.step()
             

@@ -3,9 +3,13 @@ import random
 import numpy as np
 
 # constants
-SPEED = 30
-
+SPEED = 1000
 BLOCK_SIZE = 20
+
+RIGHT = 1
+LEFT = 2
+UP = 3
+DOWN = 4
 
 window_x = 720
 window_y = 480
@@ -17,10 +21,10 @@ green = pygame.Color(0,255,0)
 blue = pygame.Color(0,0,255)
 
 pygame.init()
-font = pygame.font.SysFont('arial, 20')
+font = pygame.font.SysFont('arial', 20)
 
 
-class snake():
+class snake:
     def __init__(self, w=640, h=480):
         self.w = w
         self.h = h
@@ -31,7 +35,7 @@ class snake():
 
 
     def reset(self):
-        self.direction = 'RIGHT'
+        self.direction = RIGHT
 
         self.head = (self.w//2, self.h//2)
         
@@ -46,8 +50,8 @@ class snake():
 
 
     def place_food(self):
-        x = self.random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-        y = self.random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
         self.food = (x, y)
 
         if self.food in self.snake:
@@ -100,7 +104,7 @@ class snake():
             return True
         
         # hits itself
-        if point is self.snake[1:]:
+        if point in self.snake[1:]:
             return True
         
         return False
@@ -112,14 +116,15 @@ class snake():
         for point in self.snake:
             pygame.draw.rect(self.display, blue, pygame.Rect(point[0], point[1], BLOCK_SIZE, BLOCK_SIZE))
             pygame.draw.rect(self.display, green, pygame.Rect(point[0]+4, point[1]+4, 12, 12))
-            pygame.draw.rect(self.display, red, pygame.Rect(self.food[0], self.food[1], BLOCK_SIZE, BLOCK_SIZE))
+        
+        pygame.draw.rect(self.display, red, pygame.Rect(self.food[0], self.food[1], BLOCK_SIZE, BLOCK_SIZE))
 
         txt = font.render("Score: " + str(self.score), True, white)
         self.display.blit(txt, [0,0])
         pygame.display.flip()
 
     def move(self, action):
-        clock_wize = [1,2,3,4]
+        clock_wize = [RIGHT, DOWN, LEFT, UP]
         idx = clock_wize.index(self.direction)
 
         if np.array_equal(action, [1,0,0]):
@@ -139,15 +144,15 @@ class snake():
         x = self.head[0]
         y = self.head[1]
 
-        if self.direction == 1:
+        if self.direction == RIGHT:
             x += BLOCK_SIZE
-        elif self.direction == 2:
+        elif self.direction == LEFT:
             x -= BLOCK_SIZE
-        elif self.direction == 3:
+        elif self.direction == UP:
             y -= BLOCK_SIZE
-        elif self.direction == 4:
+        elif self.direction == DOWN:
             y += BLOCK_SIZE    
 
 
-        self.head = [x,y]
+        self.head = (x,y)
 
